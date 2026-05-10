@@ -18,9 +18,7 @@ Pendekatan Anda adalah mendidik dan memandu pengguna menuju pemahaman konseptual
 
 let history = JSON.parse(localStorage.getItem('chatHistory')) || [];
 let isLoading = false;
-
-const OPENROUTER_API_KEY = "__OPENROUTER_API_KEY__";
-
+const GEMINI_API_KEY = "AIzaSyDIfRcTJ9BKpNRqA-BmL8A4-8uQU3SrfOE";
 // Theme Logic
 const themeIconPath = {
   dark: "M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18.75a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM6.166 17.834a.75.75 0 001.06 1.06l1.591-1.59a.75.75 0 10-1.06-1.061l-1.591 1.59zM4.5 12a.75.75 0 01-.75.75H1.5a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM6.166 6.166a.75.75 0 001.06 1.06l1.59-1.591a.75.75 0 00-1.061-1.06l-1.59 1.591z", // Sun
@@ -285,60 +283,59 @@ async function sendMessage() {
   addTyping();
 
   try {
-    // 1. Format pesan untuk OpenRouter
-    const openRouterMessages = [
-      { role: "system", content: SYSTEM_PROMPT },
-      ...history.map(msg => ({
-        role: msg.role === 'assistant' ? 'assistant' : 'user',
-        content: msg.content
-      }))
-    ];
-
-    // 2. Gunakan OpenRouter API
-    const url = 'https://openrouter.ai/api/v1/chat/completions';
+    // 1. Format pesan untuk Gemini
+    const geminiHistory = history.map(msg => ({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: msg.content }]
+    }));
     
     // Ambil API Key (Hardcoded -> LocalStorage -> Prompt)
-    let activeKey = OPENROUTER_API_KEY;
-    if (!activeKey || activeKey.includes("MASUKKAN") || activeKey.includes("__OPENROUTER") || activeKey.trim() === "") {
-      activeKey = localStorage.getItem('userApiKey');
+    let activeKey = GEMINI_API_KEY;
+    if (!activeKey || activeKey.includes("MASUKKAN") || activeKey.includes("__GEMINI") || activeKey.trim() === "") {
+      activeKey = localStorage.getItem('userGeminiKey');
       if (!activeKey) {
-        activeKey = prompt("Website ini berjalan di GitHub Pages. Masukkan OpenRouter API Key Anda (sk-or-...):");
+        activeKey = prompt("Masukkan Gemini API Key Anda (AIzaSy...):");
         if (activeKey) {
-          localStorage.setItem('userApiKey', activeKey.trim());
+          localStorage.setItem('userGeminiKey', activeKey.trim());
         } else {
           throw new Error('API Key tidak diberikan.');
         }
       }
     }
 
+    // 2. Gunakan Google Gemini API
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${activeKey}`;
+
     const payload = {
-      model: "google/gemini-3.1-flash-lite",
-      messages: openRouterMessages,
-      max_tokens: 1000
+      systemInstruction: {
+        role: "system",
+        parts: [{ text: SYSTEM_PROMPT }]
+      },
+      contents: geminiHistory,
+      generationConfig: {
+        maxOutputTokens: 1000
+      }
     };
 
     const res = await fetch(url, {
       method: 'POST',
       headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${activeKey}`,
-        'HTTP-Referer': window.location.href,
-        'X-Title': 'ElektroBot'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)
     });
 
-    if (res.status === 401) {
-      localStorage.removeItem('userApiKey');
-      throw new Error('API Key tidak valid (Unauthorized). Pop-up akan muncul lagi saat halaman dimuat ulang.');
+    if (res.status === 400 || res.status === 403 || res.status === 401) {
+      localStorage.removeItem('userGeminiKey');
+      throw new Error('API Key tidak valid/ditolak oleh Google. Pop-up akan muncul lagi saat halaman dimuat ulang.');
     }
     if (!res.ok) throw new Error('Koneksi ke API gagal');
     
     const data = await res.json();
     removeTyping();
 
-    // Ekstrak balasan dari struktur JSON OpenRouter
-    const reply = data.choices?.[0]?.message?.content || 'Terjadi kesalahan sistem, silakan coba lagi.';
+    // Ekstrak balasan dari struktur JSON Gemini
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Terjadi kesalahan sistem, silakan coba lagi.';
     
     addMessage('bot', reply);
     history.push({ role: 'assistant', content: reply });
