@@ -19,9 +19,7 @@ Pendekatan Anda adalah mendidik dan memandu pengguna menuju pemahaman konseptual
 let history = JSON.parse(localStorage.getItem('chatHistory')) || [];
 let isLoading = false;
 
-// GANTI TEKS DI BAWAH INI DENGAN API KEY GEMINI ANDA UNTUK PENGUJIAN LOKAL
-// PENTING: Jika ingin mengunggah ke GitHub publik, kosongkan kembali kunci ini.
-const OPENROUTER_API_KEY = "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";
+const OPENROUTER_API_KEY = "__OPENROUTER_API_KEY__";
 
 // Theme Logic
 const themeIconPath = {
