@@ -299,7 +299,7 @@ async function sendMessage() {
     
     // Ambil API Key (Hardcoded -> LocalStorage -> Prompt)
     let activeKey = OPENROUTER_API_KEY;
-    if (!activeKey || activeKey.includes("MASUKKAN") || activeKey.trim() === "") {
+    if (!activeKey || activeKey.includes("MASUKKAN") || activeKey.includes("__OPENROUTER") || activeKey.trim() === "") {
       activeKey = localStorage.getItem('userApiKey');
       if (!activeKey) {
         activeKey = prompt("Website ini berjalan di GitHub Pages. Masukkan OpenRouter API Key Anda (sk-or-...):");
@@ -328,6 +328,10 @@ async function sendMessage() {
       body: JSON.stringify(payload)
     });
 
+    if (res.status === 401) {
+      localStorage.removeItem('userApiKey');
+      throw new Error('API Key tidak valid (Unauthorized). Pop-up akan muncul lagi saat halaman dimuat ulang.');
+    }
     if (!res.ok) throw new Error('Koneksi ke API gagal');
     
     const data = await res.json();
@@ -344,7 +348,7 @@ async function sendMessage() {
     console.error(err);
     removeTyping();
     // FALLBACK UNTUK LOCALHOST DEMO (Jika API Key kosong/gagal)
-    const mockReply = `Koneksi ke OpenRouter API gagal. Pastikan API Key valid atau cek koneksi internet Anda. \n\n<rekomendasi>Coba lagi nanti/Periksa log console/Bantu saya melakukan debugging.</rekomendasi>`;
+    const mockReply = `ERROR: ${err.message}. \nJika ini adalah masalah API Key, silakan REFRESH halaman browser Anda untuk memasukkan ulang API Key yang benar. \n\n<rekomendasi>Coba lagi nanti/Periksa log console/Bantu saya melakukan debugging.</rekomendasi>`;
     addMessage('bot', mockReply);
     history.push({ role: 'assistant', content: mockReply });
     localStorage.setItem('chatHistory', JSON.stringify(history));
