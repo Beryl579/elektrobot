@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ElektroBot — AI Asisten Teknik Elektro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<header>
+  <div class="logo-ring">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+    </svg>
+  </div>
+  <div class="header-text">
+    <h1>ElektroBot</h1>
+    <p>AI Asisten Teknik Elektro</p>
+  </div>
+  <div class="status-dot">ONLINE</div>
+  <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Theme">
+    <svg id="themeIcon" viewBox="0 0 24 24"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18.75a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM6.166 17.834a.75.75 0 001.06 1.06l1.591-1.59a.75.75 0 10-1.06-1.061l-1.591 1.59zM4.5 12a.75.75 0 01-.75.75H1.5a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM6.166 6.166a.75.75 0 001.06 1.06l1.59-1.591a.75.75 0 00-1.061-1.06l-1.59 1.591z" /></svg>
+  </button>
+</header>
+
+<div class="topic-bar">
+  <div class="chip" onclick="sendQuick('Mohon jelaskan Hukum Ohm beserta contoh penerapannya.')">⚡ Hukum Ohm</div>
+  <div class="chip" onclick="sendQuick('Bagaimana prinsip kerja dari sebuah transformator?')">🔄 Transformator</div>
+  <div class="chip" onclick="sendQuick('Mohon jelaskan konsep impedansi pada rangkaian arus bolak-balik (AC).')">〰 Impedansi AC</div>
+  <div class="chip" onclick="sendQuick('Apa perbedaan karakteristik operasional antara MOSFET dan BJT?')">🔌 MOSFET vs BJT</div>
+  <div class="chip" onclick="sendQuick('Bagaimana cara membaca nilai resistansi berdasarkan kode warna resistor?')">🎨 Kode Warna</div>
+  <div class="chip" onclick="sendQuick('Mohon jelaskan prinsip kerja motor induksi tiga fasa.')">⚙️ Motor 3 Fasa</div>
+  <div class="chip" onclick="sendQuick('Apa yang dimaksud dengan PLC dan bagaimana aplikasinya di industri?')">🖥 PLC</div>
+  <div class="chip" onclick="sendQuick('Bagaimana metode perhitungan nilai kapasitor filter pada catu daya?')">🔋 Catu Daya</div>
+</div>
+
+<div id="chat">
+  <div class="welcome-card" id="welcomeCard">
+    <div class="welcome-icon">⚡</div>
+    <h2>Selamat Datang di ElektroBot</h2>
+    <p>Asisten AI untuk mendukung pembelajaran dan riset Anda di bidang <strong style="color:var(--accent)">Teknik Elektro</strong>. Ajukan pertanyaan seputar teori dasar maupun analisis teknis lanjutan.</p>
+    <div class="quick-grid">
+      <button class="quick-btn" onclick="sendQuick('Mohon jelaskan Hukum Kirchhoff (KVL dan KCL) beserta contoh penerapannya.')">
+        <span class="q-icon">📐</span>Hukum Kirchhoff
+      </button>
+      <button class="quick-btn" onclick="sendQuick('Bagaimana prinsip kerja sistem proteksi relay pada gardu induk?')">
+        <span class="q-icon">🛡️</span>Proteksi Relay
+      </button>
+      <button class="quick-btn" onclick="sendQuick('Mohon berikan penjelasan mengenai analisis rangkaian Thevenin dan Norton.')">
+        <span class="q-icon">🔬</span>Teorema Thevenin
+      </button>
+      <button class="quick-btn" onclick="sendQuick('Sebutkan dan jelaskan klasifikasi sensor dalam sistem kendali otomatis.')">
+        <span class="q-icon">📡</span>Sensor & Kendali
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="input-area">
+  <div class="top-actions">
+    <button id="clearBtn" onclick="clearChat()">↺ Reset Chat</button>
+  </div>
+  <div class="input-row">
+    <textarea id="userInput" rows="1" placeholder="Tanya sesuatu tentang teknik elektro..." onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button id="sendBtn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+    </button>
+  </div>
+  <div class="input-hint">Enter untuk kirim · Shift+Enter untuk baris baru</div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
