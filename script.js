@@ -298,6 +298,21 @@ async function sendMessage() {
 
     // 2. Gunakan OpenRouter API
     const url = 'https://openrouter.ai/api/v1/chat/completions';
+    
+    // Ambil API Key (Hardcoded -> LocalStorage -> Prompt)
+    let activeKey = OPENROUTER_API_KEY;
+    if (!activeKey || activeKey.includes("MASUKKAN") || activeKey.trim() === "") {
+      activeKey = localStorage.getItem('userApiKey');
+      if (!activeKey) {
+        activeKey = prompt("Website ini berjalan di GitHub Pages. Masukkan OpenRouter API Key Anda (sk-or-...):");
+        if (activeKey) {
+          localStorage.setItem('userApiKey', activeKey.trim());
+        } else {
+          throw new Error('API Key tidak diberikan.');
+        }
+      }
+    }
+
     const payload = {
       model: "google/gemini-3.1-flash-lite",
       messages: openRouterMessages,
@@ -308,7 +323,9 @@ async function sendMessage() {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`
+        'Authorization': `Bearer ${activeKey}`,
+        'HTTP-Referer': window.location.href,
+        'X-Title': 'ElektroBot'
       },
       body: JSON.stringify(payload)
     });
